@@ -6,6 +6,7 @@ import FilterSection from './components/FilterSection';
 import CarList from './components/CarList';
 import RoomList from './components/RoomList';
 import Footer from './components/Footer';
+import Modal from 'react-modal'; // Import Modal
 
 // Image imports
 import xuvImage from './assets/cars/celerio.webp';
@@ -14,6 +15,9 @@ import tharImage from './assets/cars/thar-1.webp';
 import scorpioImage from './assets/cars/scorpio.webp';
 import room1Image from './assets/rooms/room.jpg';
 import room2Image from './assets/rooms/room1.jpg';
+
+// Modal accessibility setup
+Modal.setAppElement('#root');
 
 // Mock data with image imports
 const allCars = [
@@ -31,12 +35,21 @@ const allRooms = [
 const App = () => {
   const [filters, setFilters] = useState({ fuel: '', model: '', size: '', students: '' });
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
   const handleFilterChange = ({ target: { name, value } }) =>
     setFilters(prev => ({ ...prev, [name]: value }));
 
   const filterData = (data, keys) =>
     data.filter(item =>
-      keys.every(key => !filters[key] || (key === 'students' ? item[key] === +filters[key] : item[key].toLowerCase().includes(filters[key].toLowerCase())))
+      keys.every(key =>
+        !filters[key] ||
+        (key === 'students'
+          ? item[key] === +filters[key]
+          : item[key].toLowerCase().includes(filters[key].toLowerCase()))
+      )
     );
 
   return (
@@ -55,6 +68,29 @@ const App = () => {
       />
       <CarList cars={filterData(allCars, ['fuel', 'model'])} />
       <RoomList rooms={filterData(allRooms, ['size', 'students'])} />
+
+      {/* Modal Trigger */}
+      <div className="text-center my-4">
+        <button onClick={openModal} className="bg-blue-600 text-white px-6 py-2 rounded shadow">
+          Open Info Modal
+        </button>
+      </div>
+
+      {/* React Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={closeModal}
+        contentLabel="Information Modal"
+        className="bg-white p-6 rounded shadow-md w-1/2 mx-auto mt-20"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+      >
+        <h2 className="text-2xl font-bold mb-4">Welcome to RentEazy!</h2>
+        <p className="mb-4">This is a sample modal. You can use this for login, info, or booking.</p>
+        <button onClick={closeModal} className="bg-red-500 text-white px-4 py-2 rounded">
+          Close
+        </button>
+      </Modal>
+
       <Footer />
     </div>
   );
